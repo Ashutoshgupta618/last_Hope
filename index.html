@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeSaver AI — Productivity Companion</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">LifeSaver AI</span>
+        </div>
+        <button id="sidebar-close" class="sidebar-close" aria-label="Close sidebar">&times;</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="dashboard">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="tasks">
+          <span class="nav-icon">✅</span>
+          <span class="nav-label">Tasks</span>
+        </button>
+        <button class="nav-item" data-view="schedule">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">Schedule</span>
+        </button>
+        <button class="nav-item" data-view="habits">
+          <span class="nav-icon">🔥</span>
+          <span class="nav-label">Habits</span>
+        </button>
+        <button class="nav-item" data-view="analytics">
+          <span class="nav-icon">📈</span>
+          <span class="nav-label">Analytics</span>
+        </button>
+        <button class="nav-item" data-view="chat">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-label">AI Chat</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="level-badge" id="level-badge">
+          <span class="level-icon">🎯</span>
+          <div class="level-info">
+            <span class="level-name" id="level-name">Procrastinator</span>
+            <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+            <span class="xp-text" id="xp-text">0 XP</span>
+          </div>
+        </div>
+        <div class="streak-display">
+          <span>🔥</span>
+          <span id="day-streak">0 day streak</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+        <h1 class="topbar-title" id="view-title">Dashboard</h1>
+        <div class="topbar-actions">
+          <button id="voice-btn" class="btn btn-icon" title="Voice input">🎤</button>
+          <button id="autopilot-btn" class="btn btn-accent">🚀 Autopilot</button>
+          <button id="contract-btn" class="btn btn-outline">📝 Contract</button>
+        </div>
+      </header>
+
+      <!-- Crisis Banner -->
+      <div id="crisis-banner" class="crisis-banner hidden">
+        <span class="crisis-icon">🚨</span>
+        <span id="crisis-text">You have overdue tasks!</span>
+        <button id="crisis-action" class="btn btn-sm">View Tasks</button>
+      </div>
+
+      <!-- ═══ DASHBOARD VIEW ═══ -->
+      <section id="view-dashboard" class="view active">
+        <div class="dashboard-grid">
+          <div class="card card-wide">
+            <div class="card-header">
+              <h2>Priority Tasks</h2>
+              <span class="badge" id="task-count-badge">0 tasks</span>
+            </div>
+            <div id="dashboard-tasks" class="task-list compact"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Death Clocks</h2>
+              <span class="subtitle">Time until deadline</span>
+            </div>
+            <div id="death-clocks" class="death-clocks"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Today's Habits</h2>
+            </div>
+            <div id="dashboard-habits" class="habit-quick-list"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Mood Today</h2>
+            </div>
+            <div id="mood-display" class="mood-display">
+              <span class="mood-emoji" id="mood-emoji">😊</span>
+              <span class="mood-label" id="mood-label">Not set</span>
+            </div>
+          </div>
+
+          <div class="card card-wide">
+            <div class="card-header">
+              <h2>Active Contracts</h2>
+            </div>
+            <div id="dashboard-contracts" class="contract-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ TASKS VIEW ═══ -->
+      <section id="view-tasks" class="view">
+        <div class="tasks-toolbar">
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="done">Done</button>
+            <button class="filter-btn" data-filter="overdue">Overdue</button>
+          </div>
+          <button id="add-task-btn" class="btn btn-accent">+ Add Task</button>
+        </div>
+
+        <div id="tasks-list" class="task-list"></div>
+
+        <!-- Add/Edit Task Form -->
+        <div id="task-form-panel" class="task-form-panel hidden">
+          <h3 id="task-form-title">New Task</h3>
+          <form id="task-form">
+            <input type="hidden" id="task-id">
+            <div class="form-row">
+              <label for="task-name">Task Name</label>
+              <input type="text" id="task-name" required placeholder="What needs doing?">
+            </div>
+            <div class="form-row-group">
+              <div class="form-row">
+                <label for="task-priority">Priority</label>
+                <select id="task-priority">
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="task-cat">Category</label>
+                <select id="task-cat">
+                  <option value="work">Work</option>
+                  <option value="personal">Personal</option>
+                  <option value="health">Health</option>
+                  <option value="learning">Learning</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row-group">
+              <div class="form-row">
+                <label for="task-due">Due Date</label>
+                <input type="datetime-local" id="task-due" required>
+              </div>
+              <div class="form-row">
+                <label for="task-effort">Effort (1-5)</label>
+                <input type="number" id="task-effort" min="1" max="5" value="3">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="task-form-cancel" class="btn btn-outline">Cancel</button>
+              <button type="submit" class="btn btn-accent">Save Task</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ═══ SCHEDULE VIEW ═══ -->
+      <section id="view-schedule" class="view">
+        <div class="schedule-header">
+          <h2>Today's Schedule</h2>
+          <button id="generate-schedule-btn" class="btn btn-accent">✨ AI Generate</button>
+        </div>
+        <div id="schedule-blocks" class="schedule-blocks"></div>
+        <p class="schedule-note" id="schedule-note">Run Autopilot or generate a schedule to see your day plan.</p>
+      </section>
+
+      <!-- ═══ HABITS VIEW ═══ -->
+      <section id="view-habits" class="view">
+        <div class="habits-header">
+          <h2>Habit Tracker</h2>
+          <button id="add-habit-btn" class="btn btn-accent">+ Add Habit</button>
+        </div>
+        <div id="habits-list" class="habits-list"></div>
+
+        <div id="habit-form-panel" class="task-form-panel hidden">
+          <h3>New Habit</h3>
+          <form id="habit-form">
+            <div class="form-row">
+              <label for="habit-name">Habit Name</label>
+              <input type="text" id="habit-name" required placeholder="e.g. Morning run">
+            </div>
+            <div class="form-actions">
+              <button type="button" id="habit-form-cancel" class="btn btn-outline">Cancel</button>
+              <button type="submit" class="btn btn-accent">Add Habit</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ═══ ANALYTICS VIEW ═══ -->
+      <section id="view-analytics" class="view">
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h2>Procrastination by Category</h2>
+              <span class="subtitle">Overdue rate (%)</span>
+            </div>
+            <div id="procrastination-chart" class="bar-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2>Stress Heatmap</h2>
+              <span class="subtitle badge-mock">Mock Data</span>
+            </div>
+            <div id="stress-heatmap" class="stress-heatmap"></div>
+            <div class="heatmap-legend">
+              <span>Low</span>
+              <div class="legend-gradient"></div>
+              <span>High</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ CHAT VIEW ═══ -->
+      <section id="view-chat" class="view">
+        <div class="chat-container">
+          <div id="chat-messages" class="chat-messages"></div>
+          <div id="typing-indicator" class="typing-indicator hidden">
+            <span></span><span></span><span></span>
+            LifeSaver is thinking...
+          </div>
+          <form id="chat-form" class="chat-input-bar">
+            <input type="text" id="chat-input" placeholder="Ask LifeSaver anything..." autocomplete="off">
+            <button type="submit" class="btn btn-accent">Send</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mood Check-in Modal -->
+  <div id="mood-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2>How's your energy today?</h2>
+      <p class="modal-subtitle">This helps us prioritize tasks for you.</p>
+      <div class="mood-options">
+        <button class="mood-option" data-mood="1" data-energy="1">😴<span>Exhausted</span></button>
+        <button class="mood-option" data-mood="2" data-energy="2">😔<span>Low</span></button>
+        <button class="mood-option" data-mood="3" data-energy="3">😐<span>Okay</span></button>
+        <button class="mood-option" data-mood="4" data-energy="4">😊<span>Good</span></button>
+        <button class="mood-option" data-mood="5" data-energy="5">🔥<span>On Fire</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commitment Contract Modal -->
+  <div id="contract-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2>Commitment Contract</h2>
+      <p class="modal-subtitle">Sign a contract with yourself. What happens if you don't follow through?</p>
+      <form id="contract-form">
+        <div class="form-row">
+          <label for="contract-task">Commitment</label>
+          <input type="text" id="contract-task" required placeholder="I will finish...">
+        </div>
+        <div class="form-row">
+          <label for="contract-consequence">Consequence if I fail</label>
+          <textarea id="contract-consequence" required placeholder="If I don't complete this, I will..."></textarea>
+        </div>
+        <div class="form-row">
+          <label for="contract-deadline">Deadline</label>
+          <input type="datetime-local" id="contract-deadline" required>
+        </div>
+        <div class="form-actions">
+          <button type="button" id="contract-cancel" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-accent">✍️ Sign Contract</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Floating XP Indicators -->
+  <div id="xp-float-container" class="xp-float-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
